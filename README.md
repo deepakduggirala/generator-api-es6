@@ -5,7 +5,7 @@
 ## Installation
 
 ```sh
-$ npm install -g express-generator-api
+$ npm install -g express-generator-api-es6
 ```
 
 ## Quick Start
