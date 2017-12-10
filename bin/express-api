@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-var program = require('commander');
-var mkdirp = require('mkdirp');
-var os = require('os');
-var fs = require('fs');
-var path = require('path');
-var readline = require('readline');
-var sortedObject = require('sorted-object');
+const program = require('commander')
+const mkdirp = require('mkdirp')
+const os = require('os')
+const fs = require('fs')
+const path = require('path')
+const readline = require('readline')
+const sortedObject = require('sorted-object')
 
-var _exit = process.exit;
-var eol = os.EOL;
-var pkg = require('../package.json');
+const _exit = process.exit
+const eol = os.EOL
+const pkg = require('../package.json')
 
-var version = pkg.version;
+const version = pkg.version
 
 // Re-assign process.exit because of commander
 // TODO: Switch to a different command framework
@@ -21,31 +21,31 @@ process.exit = exit
 // CLI
 
 before(program, 'outputHelp', function () {
-  this.allowUnknownOption();
-});
+  this.allowUnknownOption()
+})
 
 program
   .version(version)
   .usage('[options] [dir]')
   .option('    --git', 'add .gitignore')
   .option('-f, --force', 'force on non-empty directory')
-  .parse(process.argv);
+  .parse(process.argv)
 
 if (!exit.exited) {
-  main();
+  main()
 }
 
 /**
- * Install a before function; AOP.
+ * Install a before function AOP.
  */
 
 function before(obj, method, fn) {
-  var old = obj[method];
+  const old = obj[method]
 
   obj[method] = function () {
-    fn.call(this);
-    old.apply(this, arguments);
-  };
+    fn.call(this)
+    old.apply(this, arguments)
+  }
 }
 
 /**
@@ -53,15 +53,15 @@ function before(obj, method, fn) {
  */
 
 function confirm(msg, callback) {
-  var rl = readline.createInterface({
+  const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
-  });
+  })
 
   rl.question(msg, function (input) {
-    rl.close();
-    callback(/^y|yes|ok|true$/i.test(input));
-  });
+    rl.close()
+    callback(/^y|yes|ok|true$/i.test(input))
+  })
 }
 
 /**
@@ -71,43 +71,43 @@ function confirm(msg, callback) {
  */
 
 function createApplication(app_name, path) {
-  var wait = 5;
+  const wait = 5
 
-  console.log();
+  console.log()
   function complete() {
-    if (--wait) return;
-    var prompt = launchedFromCmd() ? '>' : '$';
+    if (--wait) return
+    const prompt = launchedFromCmd() ? '>' : '$'
 
-    console.log();
-    console.log('   install dependencies:');
-    console.log('     %s cd %s && npm install', prompt, path);
-    console.log();
-    console.log('   run the app:');
+    console.log()
+    console.log('   install dependencies:')
+    console.log('     %s cd %s && npm install', prompt, path)
+    console.log()
+    console.log('   run the app:')
 
     if (launchedFromCmd()) {
-      console.log('     %s SET DEBUG=%s:* & npm start', prompt, app_name);
+      console.log('     %s SET DEBUG=%s:* & npm start', prompt, app_name)
     } else {
-      console.log('     %s DEBUG=%s:* npm start', prompt, app_name);
+      console.log('     %s DEBUG=%s:* npm start', prompt, app_name)
     }
 
-    console.log();
+    console.log()
   }
 
   // JavaScript
-  var app = loadTemplate('js/app.js');
-  var www = loadTemplate('js/www');
-  var users = loadTemplate('js/routes/users.js');
+  const app = loadTemplate('js/app.js')
+  const www = loadTemplate('js/www')
+  const users = loadTemplate('js/routes/users.js')
 
 
   mkdir(path, function(){
 
     mkdir(path + '/routes', function(){
-      write(path + '/routes/users.js', users);
-      complete();
-    });
+      write(path + '/routes/users.js', users)
+      complete()
+    })
 
     // package.json
-    var pkg = {
+    const pkg = {
         name: app_name
       , version: '0.0.0'
       , private: true
@@ -121,28 +121,28 @@ function createApplication(app_name, path) {
 
 
     // sort dependencies like npm(1)
-    pkg.dependencies = sortedObject(pkg.dependencies);
+    pkg.dependencies = sortedObject(pkg.dependencies)
 
     // write files
-    write(path + '/package.json', JSON.stringify(pkg, null, 2));
-    write(path + '/app.js', app);
+    write(path + '/package.json', JSON.stringify(pkg, null, 2))
+    write(path + '/app.js', app)
     mkdir(path + '/bin', function(){
-      www = www.replace('{name}', app_name);
-      write(path + '/bin/www', www, 0755);
-      complete();
-    });
+      www = www.replace('{name}', app_name)
+      write(path + '/bin/www', www, 0755)
+      complete()
+    })
 
     if (program.git) {
-      write(path + '/.gitignore', fs.readFileSync(__dirname + '/../templates/js/gitignore', 'utf-8'));
+      write(path + '/.gitignore', fs.readFileSync(__dirname + '/../templates/js/gitignore', 'utf-8'))
     }
 
-    complete();
-  });
+    complete()
+  })
 }
 
 function copy_template(from, to) {
-  from = path.join(__dirname, '..', 'templates', from);
-  write(to, fs.readFileSync(from, 'utf-8'));
+  from = path.join(__dirname, '..', 'templates', from)
+  write(to, fs.readFileSync(from, 'utf-8'))
 }
 
 /**
@@ -154,9 +154,9 @@ function copy_template(from, to) {
 
 function emptyDirectory(path, fn) {
   fs.readdir(path, function(err, files){
-    if (err && 'ENOENT' != err.code) throw err;
-    fn(!files || !files.length);
-  });
+    if (err && 'ENOENT' != err.code) throw err
+    fn(!files || !files.length)
+  })
 }
 
 /**
@@ -168,21 +168,21 @@ function exit(code) {
   // https://github.com/joyent/node/issues/6247 is just one bug example
   // https://github.com/visionmedia/mocha/issues/333 has a good discussion
   function done() {
-    if (!(draining--)) _exit(code);
+    if (!(draining--)) _exit(code)
   }
 
-  var draining = 0;
-  var streams = [process.stdout, process.stderr];
+  const draining = 0
+  const streams = [process.stdout, process.stderr]
 
-  exit.exited = true;
+  exit.exited = true
 
   streams.forEach(function(stream){
     // submit empty write request and wait for completion
-    draining += 1;
-    stream.write('', done);
-  });
+    draining += 1
+    stream.write('', done)
+  })
 
-  done();
+  done()
 }
 
 /**
@@ -191,7 +191,7 @@ function exit(code) {
 
 function launchedFromCmd() {
   return process.platform === 'win32'
-    && process.env._ === undefined;
+    && process.env._ === undefined
 }
 
 /**
@@ -199,7 +199,7 @@ function launchedFromCmd() {
  */
 
 function loadTemplate(name) {
-  return fs.readFileSync(path.join(__dirname, '..', 'templates', name), 'utf-8');
+  return fs.readFileSync(path.join(__dirname, '..', 'templates', name), 'utf-8')
 }
 
 /**
@@ -208,33 +208,33 @@ function loadTemplate(name) {
 
 function main() {
   // Path
-  var destinationPath = program.args.shift() || '.';
+  const destinationPath = program.args.shift() || '.'
 
   // App name
-  var appName = path.basename(path.resolve(destinationPath));
+  const appName = path.basename(path.resolve(destinationPath))
 
   // Template engine
-  program.template = 'jade';
-  if (program.ejs) program.template = 'ejs';
-  if (program.hogan) program.template = 'hjs';
-  if (program.hbs) program.template = 'hbs';
+  program.template = 'jade'
+  if (program.ejs) program.template = 'ejs'
+  if (program.hogan) program.template = 'hjs'
+  if (program.hbs) program.template = 'hbs'
 
   // Generate application
   emptyDirectory(destinationPath, function (empty) {
     if (empty || program.force) {
-      createApplication(appName, destinationPath);
+      createApplication(appName, destinationPath)
     } else {
       confirm('destination is not empty, continue? [y/N] ', function (ok) {
         if (ok) {
-          process.stdin.destroy();
-          createApplication(appName, destinationPath);
+          process.stdin.destroy()
+          createApplication(appName, destinationPath)
         } else {
-          console.error('aborting');
-          exit(1);
+          console.error('aborting')
+          exit(1)
         }
-      });
+      })
     }
-  });
+  })
 }
 
 /**
@@ -245,8 +245,8 @@ function main() {
  */
 
 function write(path, str, mode) {
-  fs.writeFileSync(path, str, { mode: mode || 0666 });
-  console.log('   \x1b[36mcreate\x1b[0m : ' + path);
+  fs.writeFileSync(path, str, { mode: mode || 0666 })
+  console.log('   \x1b[36mcreate\x1b[0m : ' + path)
 }
 
 /**
@@ -258,8 +258,8 @@ function write(path, str, mode) {
 
 function mkdir(path, fn) {
   mkdirp(path, 0755, function(err){
-    if (err) throw err;
-    console.log('   \033[36mcreate\033[0m : ' + path);
-    fn && fn();
-  });
+    if (err) throw err
+    console.log('   \033[36mcreate\033[0m : ' + path)
+    fn && fn()
+  })
 }
