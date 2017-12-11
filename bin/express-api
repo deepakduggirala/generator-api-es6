@@ -95,7 +95,7 @@ function createApplication(app_name, path) {
 
   // JavaScript
   const app = loadTemplate('js/app.js')
-  const www = loadTemplate('js/www')
+  let www = loadTemplate('js/www')
   const users = loadTemplate('js/routes/users.js')
 
 
