@@ -71,7 +71,7 @@ function confirm(msg, callback) {
  */
 
 function createApplication(app_name, path) {
-  const wait = 5
+  let wait = 5
 
   console.log()
   function complete() {
